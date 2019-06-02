@@ -9,11 +9,17 @@ const port = 3000;
 const dbUrl = 'mongodb://mongo:27017';
 const dbName = 'todo-api';
 const client = new MongoClient(dbUrl);
+let db;
+
+app.get('/', (req, res) => {
+  res.json("Welcome to the todo API");
+});
 
 app.post('/todos/add', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
-  res.status(200);
-  res.json(req.body);
+
+  db.collection('todos').insertOne(req.body);
+  res.status(200).json(req.body);
 })
 
 app.listen(port, () => console.log(`App listening on port ${port}!`))
@@ -23,7 +29,5 @@ client.connect(function (err) {
   assert.equal(null, err);
   console.log("Connected successfully to server");
 
-  const db = client.db(dbName);
-
-  client.close();
+  db = client.db(dbName);
 });
