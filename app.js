@@ -46,6 +46,22 @@ app.get('/todos/:id', (req, res) => {
   });
 })
 
+app.get('/users/:user/todos/', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+
+  const allTodosForUser = db.collection('todos').find({ userId: ObjectID.createFromHexString(req.params.user) }).toArray().then((result, err) => {
+    if (err) {
+      return createNotFoundStatus(res, err);
+    }
+
+    if (!result) {
+      return createNotFoundStatus(res, 'No user was found on that id');
+    }
+
+    return res.status(200).json(result);
+  });
+})
+
 app.listen(port, () => console.log(`App listening on port ${port}!`))
 
 // Use connect method to connect to the Server
