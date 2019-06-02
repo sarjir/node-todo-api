@@ -1,7 +1,8 @@
 const express = require('express');
 const MongoClient = require('mongodb').MongoClient;
 const ObjectID = require('mongodb').ObjectID;
-const createNotFoundStatus = require('./error-handling');
+const createNotFoundStatus = require('./error-handling').createNotFoundStatus;
+const handleFalseyData = require('./error-handling').handleFalseyData;
 const assert = require('assert');
 
 const app = express();
@@ -34,13 +35,7 @@ app.get('/todos/:id', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
 
   db.collection('todos').findOne({ _id: ObjectID.createFromHexString(req.params.id) }).then((document, err) => {
-    if (err) {
-      return createNotFoundStatus(res, err);
-    }
-
-    if (!document) {
-      return createNotFoundStatus(res, 'No document found for supplied id');
-    }
+    handleFalseyData({ response: res, result: document, resultErrorMsg: 'No todo was found with that id', error: err });
 
     return res.status(200).json(document);
   });
@@ -52,10 +47,6 @@ app.get('/users/:user/todos/', (req, res) => {
   const allTodosForUser = db.collection('todos').find({ userId: ObjectID.createFromHexString(req.params.user) }).toArray().then((result, err) => {
     if (err) {
       return createNotFoundStatus(res, err);
-    }
-
-    if (!result) {
-      return createNotFoundStatus(res, 'No user was found on that id');
     }
 
     return res.status(200).json(result);

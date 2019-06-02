@@ -5,4 +5,17 @@ function createNotFoundStatus(res, errorMessage) {
   })
 };
 
-module.exports = createNotFoundStatus;
+function handleFalseyData({ response, result = {}, resultErrorMsg = '', internalError = null } = {}) {
+  if (internalError) {
+    return createNotFoundStatus(response, internalError);
+  }
+
+  if (!result) {
+    return createNotFoundStatus(response, resultErrorMsg);
+  }
+}
+
+module.exports = {
+  createNotFoundStatus,
+  handleFalseyData
+}
